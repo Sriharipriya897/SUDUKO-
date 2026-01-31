@@ -18,17 +18,13 @@
     /* Darker pink/maroon for strong contrast */
 
     --cell-given-bg: #fdf2f8;
-    /* Light pink for given */
     --cell-given-text: #831843;
 
     --cell-edit-bg: #ffffff;
     --cell-focus-bg: #fbcfe8;
-    /* Softer pink highlight */
 
     --cell-correct-bg: #d1fae5;
-    /* Soft Green */
     --cell-wrong-bg: #fee2e2;
-    /* Soft Red */
 
     --font-family: 'Inter', sans-serif;
     --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
@@ -50,8 +46,92 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 20px;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll during transitions */
 }
 
+/* --- View Management --- */
+.hidden {
+    display: none !important;
+}
+
+/* Fade Animation Classes */
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.4s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* --- LANDING PAGE STYLES --- */
+.landing-container {
+    text-align: center;
+    max-width: 600px;
+    padding: 40px;
+}
+
+.landing-title {
+    font-size: 4.5rem;
+    /* Huge title */
+    font-weight: 800;
+    color: var(--primary-pink);
+    letter-spacing: -0.04em;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.landing-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    font-weight: 500;
+}
+
+.landing-features {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 50px;
+    flex-wrap: wrap;
+}
+
+.feature-badge {
+    background-color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--primary-pink);
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--primary-pink-light);
+}
+
+.large-btn {
+    padding: 18px 48px;
+    /* Bigger button */
+    font-size: 1.2rem;
+    border-radius: 60px;
+    box-shadow: 0 10px 20px rgba(214, 51, 132, 0.2);
+}
+
+
+/* --- GAME CONTAINER STYLES --- */
 .main-container {
     background-color: var(--bg-card);
     padding: 32px;
@@ -63,7 +143,6 @@ body {
     gap: 24px;
     max-width: 480px;
     width: 100%;
-    transition: transform 0.3s ease;
 }
 
 header h1 {
@@ -107,7 +186,7 @@ header h1 {
     font-variant-numeric: tabular-nums;
 }
 
-/* Board Wrapper to enforce aspect ratio */
+/* Board Wrapper */
 .board-wrapper {
     width: 100%;
     max-width: 360px;
@@ -138,13 +217,10 @@ header h1 {
     font-size: 1.4rem;
     font-weight: 500;
     cursor: pointer;
-
-    /* Borders: Default thin */
     border-right: 1px solid var(--border-thin);
     border-bottom: 1px solid var(--border-thin);
 }
 
-/* Input Styling */
 .cell input {
     width: 100%;
     height: 100%;
@@ -159,8 +235,6 @@ header h1 {
     margin: 0;
     cursor: pointer;
     caret-color: var(--primary-pink);
-
-    /* Subtle glow/blur effect on numbers per request */
     text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
@@ -175,26 +249,21 @@ header h1 {
     -moz-appearance: textfield;
 }
 
-/* Thick Borders for Subgrids */
-/* Right border for col 3, 6 */
+/* Border Logic */
 .cell:nth-child(9n+3),
 .cell:nth-child(9n+6) {
     border-right: 2px solid var(--border-thick);
 }
 
-/* No right border for last col */
 .cell:nth-child(9n) {
     border-right: none;
 }
 
-/* Bottom border for row 3, 6 */
-/* Cells 19-27 (Row 3), Cells 46-54 (Row 6) */
 .cell:nth-child(n+19):nth-child(-n+27),
 .cell:nth-child(n+46):nth-child(-n+54) {
     border-bottom: 2px solid var(--border-thick);
 }
 
-/* No bottom border for last row */
 .cell:nth-child(n+73) {
     border-bottom: none;
 }
@@ -240,13 +309,11 @@ header h1 {
     font-weight: 600;
     border: none;
     border-radius: 50px;
-    /* Pill shape for modern feel */
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Button Pop Animation */
 .btn:active {
     transform: scale(0.95);
 }
@@ -274,7 +341,6 @@ header h1 {
 .btn.danger {
     background-color: transparent;
     color: #e11d48;
-    /* Red-ish pink */
     border: 2px solid #e11d48;
 }
 
@@ -321,6 +387,10 @@ header h1 {
         box-shadow: none;
         height: 100vh;
         justify-content: center;
+    }
+
+    .landing-title {
+        font-size: 3rem;
     }
 
     .board-wrapper {

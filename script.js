@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let isGameActive = false;
 
     // --- DOM Elements ---
+    // Views
+    const viewLanding = document.getElementById('landing-view');
+    const viewGame = document.getElementById('game-view');
+    const btnStartGame = document.getElementById('btn-start-game');
+
+    // Game Elements
     const uiBoard = document.getElementById('sudoku-board');
     const uiTimer = document.getElementById('timer');
     const uiScore = document.getElementById('score');
@@ -24,6 +30,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnHint = document.getElementById('btn-hint');
     const btnCheck = document.getElementById('btn-check');
     const btnSolve = document.getElementById('btn-solve');
+    const btnHome = document.getElementById('btn-home');
+
+    // --- View Navigation ---
+
+    function showGame() {
+        // Animation Handle
+        viewLanding.style.opacity = '0';
+        viewLanding.style.transition = 'opacity 0.3s ease';
+
+        setTimeout(() => {
+            viewLanding.classList.add('hidden');
+            viewGame.classList.remove('hidden');
+            viewGame.classList.add('fade-in');
+
+            // Only start if not already active or if needed
+            // Actually, we should always start new game when entering? 
+            // Or just resume if we had one? 
+            // User request usually implies "Start Game" -> New Game.
+            startNewGame();
+        }, 300);
+    }
+
+    function showLanding() {
+        if (isGameActive) {
+            if (!confirm("Return to home? Your progress will be lost.")) return;
+            clearInterval(timerInterval);
+            isGameActive = false;
+        }
+
+        viewGame.classList.remove('fade-in');
+        viewGame.classList.add('hidden');
+
+        viewLanding.classList.remove('hidden');
+        viewLanding.style.opacity = '0';
+
+        // Reflow for animation
+        void viewLanding.offsetWidth;
+
+        viewLanding.style.opacity = '1';
+    }
 
     // --- Helpers ---
     const formatTime = (secs) => {
@@ -35,14 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateStats = () => {
         uiScore.textContent = score;
         uiHints.textContent = `${hintsRemaining}/${MAX_HINTS}`;
-
-        // Disable hint button if 0 left
         if (hintsRemaining <= 0) btnHint.disabled = true;
     };
 
     // --- Core Sudoku Logic ---
 
-    // 1. Generate Solvable Board
     function generateSolution() {
         const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
         fillDiagonal(board);
@@ -78,12 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkIfSafe(board, row, col, num) {
-        // Row & Col
         for (let x = 0; x < BOARD_SIZE; x++) {
             if (board[row][x] === num && x !== col) return false;
             if (board[x][col] === num && x !== row) return false;
         }
-        // Box
         const startRow = row - (row % SUBGRID_SIZE);
         const startCol = col - (col % SUBGRID_SIZE);
         return isSafeInBox(board, startRow, startCol, num);
@@ -107,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-    // 2. Create Puzzle (Remove K elements)
     function createPuzzle(fullBoard, missingCount = 40) {
         let puzzle = fullBoard.map(r => [...r]);
         let attempts = missingCount;
@@ -125,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Game Logic ---
 
     function startNewGame() {
-        // Reset state
         isGameActive = true;
         secondsElapsed = 0;
         score = 0;
@@ -138,14 +177,12 @@ document.addEventListener('DOMContentLoaded', () => {
             uiTimer.textContent = formatTime(secondsElapsed);
         }, 1000);
 
-        // Buttons
         btnHint.disabled = false;
         btnCheck.disabled = false;
         btnSolve.disabled = false;
 
-        // Boards
         solution = generateSolution();
-        initialPuzzle = createPuzzle(solution, 45); // 45 holes = Medium/Hard
+        initialPuzzle = createPuzzle(solution, 45);
         userBoard = initialPuzzle.map(r => [...r]);
 
         renderBoard();
@@ -169,13 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.maxLength = 1;
-                    input.inputMode = 'numeric'; // mobile keyboard
+                    input.inputMode = 'numeric';
                     if (val !== EMPTY) input.value = val;
 
                     input.dataset.row = r;
                     input.dataset.col = c;
 
-                    // Listeners
                     input.addEventListener('input', (e) => handleInput(e, r, c));
                     input.addEventListener('keydown', (e) => handleNavigation(e, r, c));
 
@@ -191,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const val = input.value;
         const num = parseInt(val);
 
-        // Styling reset
         input.parentElement.classList.remove('wrong', 'correct');
 
         if (!val) {
@@ -200,27 +235,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (isNaN(num) || num < 1 || num > 9) {
-            input.value = ''; // Clean invalid
+            input.value = '';
             userBoard[r][c] = EMPTY;
             return;
         }
 
         userBoard[r][c] = num;
-
-        // Auto-check completion (optional, user asked for Check button)
-        // But we can implicitly win if filled correctly.
         checkWinCondition();
     }
 
     function checkWinCondition() {
-        // 1. Check if full
         for (let r = 0; r < BOARD_SIZE; r++) {
             for (let c = 0; c < BOARD_SIZE; c++) {
                 if (userBoard[r][c] === EMPTY) return;
             }
         }
 
-        // 2. Validate against solution
         let isCorrect = true;
         for (let r = 0; r < BOARD_SIZE; r++) {
             for (let c = 0; c < BOARD_SIZE; c++) {
@@ -245,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const c = parseInt(input.dataset.col);
             const val = parseInt(input.value);
 
-            if (!val) return; // skip empty
+            if (!val) return;
 
             input.parentElement.classList.remove('correct', 'wrong');
 
@@ -260,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function giveHint() {
         if (!isGameActive || hintsRemaining <= 0) return;
 
-        // Find empty cells
         let empties = [];
         for (let r = 0; r < 9; r++) {
             for (let c = 0; c < 9; c++) {
@@ -270,22 +299,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (empties.length === 0) return;
 
-        // Pick random
         const { r, c } = empties[Math.floor(Math.random() * empties.length)];
         const correctVal = solution[r][c];
 
-        // Update Logic
         userBoard[r][c] = correctVal;
         hintsRemaining--;
-        score = Math.max(0, score - 50); // Penalty
+        score = Math.max(0, score - 50);
         updateStats();
 
-        // Update UI
         const input = document.querySelector(`input[data-row='${r}'][data-col='${c}']`);
         if (input) {
             input.value = correctVal;
             input.parentElement.classList.add('correct');
-            input.disabled = true; // Lock hint? Optional.
+            input.disabled = true;
         }
 
         checkWinCondition();
@@ -296,7 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm("Reveal solution? The game will end.")) return;
 
         userBoard = solution.map(r => [...r]);
-        // Re-render essentially
         const inputs = document.querySelectorAll('input');
         inputs.forEach(input => {
             const r = parseInt(input.dataset.row);
@@ -304,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             input.value = solution[r][c];
         });
 
-        endGame(false); // Game over, no win
+        endGame(false);
     }
 
     function endGame(victory) {
@@ -314,12 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (victory) {
             score += 1000;
             updateStats();
-            // Highlight all green
             document.querySelectorAll('.cell').forEach(c => c.classList.add('correct'));
             alert("Congratulations! Puzzle Solved!");
         }
 
-        // Disable controls
         btnHint.disabled = true;
         btnCheck.disabled = true;
         btnSolve.disabled = true;
@@ -327,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleNavigation(e, r, c) {
-        // Arrow key navigation
         const key = e.key;
         if (!key.startsWith('Arrow')) return;
 
@@ -340,18 +362,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let nr = r + dr, nc = c + dc;
 
-        // Bounds check loop? or clamp?
         if (nr < 0) nr = 0;
         if (nr > 8) nr = 8;
         if (nc < 0) nc = 0;
         if (nc > 8) nc = 8;
-
-        // Find input or div at location
-        // Since given cells don't have input, we might get stuck if we only look for inputs.
-        // But user can only focus inputs. 
-        // We will jump over givens until we find an input or hit edge.
-        // Simple version: just try next cell. If it's given, ignore?
-        // Better: look for input at that coord.
 
         const nextInput = document.querySelector(`input[data-row='${nr}'][data-col='${nc}']`);
         if (nextInput) {
@@ -359,7 +373,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Init ---
+    // --- Init Bindings ---
+    // Landing
+    btnStartGame.addEventListener('click', showGame);
+
+    // Game
+    btnHome.addEventListener('click', showLanding); // If user wants to go back
+
     btnNew.addEventListener('click', () => {
         if (isGameActive && !confirm("Abandon current game?")) return;
         startNewGame();
@@ -368,5 +388,5 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCheck.addEventListener('click', checkBoard);
     btnSolve.addEventListener('click', solveGame);
 
-    startNewGame();
+    // Initial state logic is handled by HTML hiding text
 });

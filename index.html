@@ -6,12 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sudoku - Professional Edition</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <div class="main-container">
+    <!-- LANDING VIEW -->
+    <div id="landing-view" class="landing-container">
+        <div class="landing-content">
+            <h1 class="landing-title">Sudoku</h1>
+            <p class="landing-subtitle">The classic puzzle game, reimagined.</p>
+
+            <div class="landing-features">
+                <div class="feature-badge">Refined Design</div>
+                <div class="feature-badge">Smart Hints</div>
+                <div class="feature-badge">Timer Challenge</div>
+            </div>
+
+            <button id="btn-start-game" class="btn primary large-btn">Start Game</button>
+        </div>
+    </div>
+
+    <!-- GAME VIEW (Initially Hidden) -->
+    <div id="game-view" class="main-container hidden">
         <header>
             <h1>Sudoku</h1>
         </header>
@@ -42,6 +59,7 @@
             <button id="btn-hint" class="btn secondary">Hint</button>
             <button id="btn-check" class="btn secondary">Check</button>
             <button id="btn-solve" class="btn danger">Solve</button>
+            <button id="btn-home" class="btn secondary">Home</button>
         </div>
     </div>
 
