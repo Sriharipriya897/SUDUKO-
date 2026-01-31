@@ -16,6 +16,7 @@ A clean, modern, and professional Sudoku web application built with pure HTML, C
   - **Hints**: Smart hint system (Max 3 per game).
   - **Check Feature**: Instantly verifies your board state (Green for correct, Red for wrong).
   - **Solve**: Automated solver to demonstrate the solution.
+- **Landing Page**: A beautiful welcome screen with smooth transitions to the game.
 - **Strict Grid System**: perfectly square 9x9 grid with distinct 3x3 subgrid borders.
 - **Responsive**: Works beautifully on Desktops, Tablets, and Mobile devices.
 - **No Frameworks**: Extremely lightweight, built using only standard web technologies.
